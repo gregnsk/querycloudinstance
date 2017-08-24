@@ -1,4 +1,5 @@
 This is a script to report underlying cloud instance details
+
 Current version supports AWS, Azure and GCP 
 
 Sample output:
