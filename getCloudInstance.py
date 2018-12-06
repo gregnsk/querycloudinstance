@@ -10,7 +10,8 @@ import fcntl
 import struct
 import json
 import ntpath
-from termcolor import cprint
+import psutil
+import platform
 
 
 
@@ -32,7 +33,7 @@ myzone = "UNKNOWN"
 myinstancetype = "UNKNOWN"
 
 try:
-    AWS_R = requests.get(AWS_URL)
+    AWS_R = requests.get(AWS_URL, timeout=0.001)
     if AWS_R.status_code == 200:
         provider = "AWS"
         as_json = json.loads(AWS_R.content)
@@ -42,7 +43,7 @@ except ConnectionError:
     pass
 
 try:
-    GCP_R = requests.get(GCP_URL+'zone', headers={'Metadata-Flavor': 'Google'})
+    GCP_R = requests.get(GCP_URL+'zone', headers={'Metadata-Flavor': 'Google'}, timeout=0.001)
     if GCP_R.status_code == 200:
         provider = "GCP"
         myzone = ntpath.basename(GCP_R.text)
@@ -52,7 +53,7 @@ except ConnectionError:
     pass
 
 try:
-    AZURE_R = requests.get(AZURE_URL, headers={'Metadata': 'true'})
+    AZURE_R = requests.get(AZURE_URL, headers={'Metadata': 'true'}, timeout=0.001)
     if AZURE_R.status_code == 200:
         provider = "AZURE"
         as_json = json.loads(AZURE_R.content)
@@ -63,9 +64,21 @@ except ConnectionError:
 
 myusername = getpass.getuser()
 myhostname = socket.gethostname()
-myip = get_ip_address('eth0')
 
-data = [['userName','hostName','privateIP','provider','AZ','instanceType'],[myusername,myhostname,myip,provider,myzone,myinstancetype]]
-col_width = max(len(word) for row in data for word in row) + 2
-for row in data:
-    cprint ("".join(word.ljust(col_width) for word in row), attrs=['bold','reverse'])
+addrs = psutil.net_if_addrs()
+myip = ""
+for addr in addrs.keys():
+    for interface in addrs[addr]:
+        if(interface.family == 2):
+            if (myip != ""):
+                myip = myip + "; "
+            myip = myip + interface.address + "@" + addr
+
+
+print "userName: ",myusername
+print "hostName: ",myhostname
+print "privateIPs: ",myip
+print "provider: ",provider
+print "AZ: ",myzone
+print "instanceType: ",myinstancetype
+print "OS: ",platform.system(),platform.release()
