@@ -15,12 +15,6 @@ import platform
 
 
 
-def linux_distribution():
-  try:
-    return platform.linux_distribution()
-  except:
-    return "N/A"
-
 AWS_URL = "http://169.254.169.254/latest/dynamic/instance-identity/document"
 GCP_URL = "http://metadata.google.internal/computeMetadata/v1/instance/"
 AZURE_URL = "http://169.254.169.254/metadata/instance?api-version=2017-03-01"
@@ -78,4 +72,4 @@ print "privateIPs: ",myip
 print "provider: ",provider
 print "AZ: ",myzone
 print "instanceType: ",myinstancetype
-print "OS: ",platform.dist(),linux_distribution(),platform.platform()
+print "OS: ",platform.platform()
