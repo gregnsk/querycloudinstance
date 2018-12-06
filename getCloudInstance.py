@@ -15,14 +15,11 @@ import platform
 
 
 
-def get_ip_address(ifname):
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    return socket.inet_ntoa(fcntl.ioctl(
-        s.fileno(),
-        0x8915,  # SIOCGIFADDR
-        struct.pack('256s', ifname[:15])
-    )[20:24])
-
+def linux_distribution():
+  try:
+    return platform.linux_distribution()
+  except:
+    return "N/A"
 
 AWS_URL = "http://169.254.169.254/latest/dynamic/instance-identity/document"
 GCP_URL = "http://metadata.google.internal/computeMetadata/v1/instance/"
@@ -81,4 +78,4 @@ print "privateIPs: ",myip
 print "provider: ",provider
 print "AZ: ",myzone
 print "instanceType: ",myinstancetype
-print "OS: ",platform.system(),platform.release()
+print "OS: ",platform.dist(),linux_distribution(),platform.platform()
